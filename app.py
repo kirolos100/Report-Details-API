@@ -77,7 +77,7 @@ def edit_arabic_report():
                           You will edit the provided JSON structure to improve clarity, add details,
                           and make the content more engaging and comprehensive. Return the output as valid JSON."""
         },
-        {"role": "user", "content": f"قم بتحسين هذا التقرير JSON بناءً على التعديلات التالية:\n{arabic_prompt}\n\nJSON الحالي:\n{json.dumps(input_json, ensure_ascii=False, indent=2)}"}
+        {"role": "user", "content": f"قم بتحسين هذا الجزء من التقرير JSON بحيث انك تعدل قي نفس الheading و لا تخترع واحد جديد بناءً على التعديلات التالية:\n{arabic_prompt}\n\nJSON الحالي:\n{json.dumps(input_json, ensure_ascii=False, indent=2)}"}
     ]
 
 
