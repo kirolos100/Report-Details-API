@@ -152,7 +152,7 @@ def edit_arabic_report():
         url_contents = [fetch_url_content(url) for url in urls if fetch_url_content(url)]
 
         # Enrich prompt with URL contents
-        enriched_prompt = arabic_prompt + "\n\n" + "يرجى تضمين إحصائيات وتحليلات مفصلة في كل نقطة، وشرح وافٍ بالمحتوى العلمي مع تقسيم المقال إلى أكثر من عنوان فرعي. استخدم البيانات التالية من المصادر لدعم المحتوى:\n\n".join(url_contents)
+        enriched_prompt = arabic_prompt + "\n\n" + "يرجى تضمين إحصائيات وتحليلات مفصلة في كل نقطة، وشرح وافٍ و مفصل و كثيف بالمحتوى مع تقسيم المقال إلى أكثر من عنوان فرعي. استخدم البيانات التالية من المصادر لدعم المحتوى:\n\n".join(url_contents)
         conversation_history.append({
     "role": "system",
     "content": "You are a professional journalist tasked with writing a detailed informative and valuable Arabic article in JSON format. The output should contain detailed statistics and analysis for every point."
@@ -160,7 +160,11 @@ def edit_arabic_report():
 
         conversation_history.append({
     "role": "user",
-    "content": f"قي نفس شكل ال JSON Formatبدون اي تغيير فيه, انا اريد الJson فقط بدون اي شروخات اضافية او في ال style قم بتحسين المقال التالي:\n{enriched_prompt}"
+    "content": f"""
+    قي نفس شكل ال JSON Formatبدون اي تغيير فيه, انا اريد الJson فقط بدون اي شروحات اضافية او في ال style قم بتحسين المقال التالي:\n{enriched_prompt}
+    يجب ان كل  content يحتوي من اربع لخمس فقرات كبار و طوال مليئين بالتفاصيل الغنية 
+
+    """
 })
 
         enriched_response = llm.chat.completions.create(
