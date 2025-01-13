@@ -142,9 +142,18 @@ def edit_arabic_report():
             messages=conversation_history
         ).choices[0].message.content
 
-        topic = llm_response.split("موضوع التقرير=")[1].split("\n")[0].strip()
-        perspective = llm_response.split("منظور التقرير=")[1].strip().strip("[]").split(",")
-        perspective = [p.strip() for p in perspective]
+        try:
+            print("LLM response:", llm_response)  # Debugging log
+        
+            if "موضوع التقرير=" not in llm_response or "منظور التقرير=" not in llm_response:
+                return jsonify({"error": "Missing 'موضوع التقرير' or 'منظور التقرير' in LLM response."}), 500
+        
+            topic = llm_response.split("موضوع التقرير=")[1].split("\n")[0].strip()
+            perspective = llm_response.split("منظور التقرير=")[1].strip().strip("[]").split(",")
+            perspective = [p.strip() for p in perspective]
+        except IndexError as e:
+            return jsonify({"error": f"Error parsing LLM response: {str(e)}"}), 500
+
 
 
         # Fetch URLs and content
@@ -186,7 +195,7 @@ def edit_arabic_report():
     - قم بإرجاع المحتوى وفق الصيغة المطلوبة فقط.
 
     تأكد أن ملف JSON الناتج:
-    - يحتوي على الحقول "headings" و"listItemsList" و"listItems" مكتملة وصحيحة.
+    - يحتوي على الحقول "headings" و"listItemsList" و"listItems" فقط مكتملة وصحيحة دون التزويد عليهم او الانقاص من احدهم.
     - متناسق وصالح للاستخدام بدون أي أخطاء في التنسيق.
     - يبدأ وينتهي بـ "{" و"}".
 
