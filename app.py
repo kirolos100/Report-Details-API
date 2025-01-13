@@ -104,6 +104,20 @@ def process_with_llm(content, query):
     except Exception as e:
         print(f"Error processing content with LLM: {e}")
         return None
+def process_with_llm(content, query):
+    try:
+        conversation_history = [
+            {"role": "system", "content": "You are an Arabic journalist tasked with enriching content for a report."},
+            {"role": "user", "content": f"Here is the content from the webpage:\n\n{content}\n\n{query}"}
+        ]
+        response = llm.chat.completions.create(
+            model="gpt-4o",
+            messages=conversation_history
+        ).choices[0].message.content
+        return response
+    except Exception as e:
+        print(f"Error processing content with LLM: {e}")
+        return None
 
 @app.route('/edit-arabic-report', methods=['POST'])
 def edit_arabic_report():
@@ -120,12 +134,14 @@ def edit_arabic_report():
 
         try:
             input_json = json.loads(json_input_string)
-            print(input_json)
-        except json.JSONDecodeError:
-            return jsonify({"error": "Invalid JSON format in 'json_input'."}), 400
+            print("Input JSON:", input_json)
+        except json.JSONDecodeError as e:
+            return jsonify({"error": f"Invalid JSON: {str(e)}"}), 400
 
-        # Extract topic and perspective from the input JSON
+        # Ensure 'headings' exists
         headings = input_json.get("headings", [])
+        if not isinstance(headings, list):
+            return jsonify({"error": "'headings' must be a list."}), 400
         prompt = f"""
     المقال الحالي يتحدث عن:
     {json.dumps(headings, ensure_ascii=False, indent=2)}
@@ -145,18 +161,9 @@ def edit_arabic_report():
             messages=conversation_history
         ).choices[0].message.content
 
-        try:
-            print("LLM response:", llm_response)  # Debugging log
-        
-            if "موضوع التقرير=" not in llm_response or "منظور التقرير=" not in llm_response:
-                return jsonify({"error": "Missing 'موضوع التقرير' or 'منظور التقرير' in LLM response."}), 500
-        
-            topic = llm_response.split("موضوع التقرير=")[1].split("\n")[0].strip()
-            perspective = llm_response.split("منظور التقرير=")[1].strip().strip("[]").split(",")
-            perspective = [p.strip() for p in perspective]
-        except IndexError as e:
-            return jsonify({"error": f"Error parsing LLM response: {str(e)}"}), 500
-
+        topic = llm_response.split("موضوع التقرير=")[1].split("\n")[0].strip()
+        perspective = llm_response.split("منظور التقرير=")[1].strip().strip("[]").split(",")
+        perspective = [p.strip() for p in perspective]
 
 
         # Fetch URLs and content
@@ -183,6 +190,7 @@ def edit_arabic_report():
 قم بإرجاع JSON صالح فقط بدون أي نصوص إضافية أو شروحات. يجب أن يبدأ الرد بـ "{" وينتهي بـ "}".
 لا تقم بتغيير ال Format لل {input_json}
 لا تقوم بنقص اي من ال{input_json} بل قم بالتزويد عليها
+لا حظ انك لا تقوم بكتابة heading جديد ولكن انت تضيف نقطة جديدة ب title & content و كل ذلك مضاف على ال input
 انت لا تقوم بتغيير اي شي الا ال content لاي من النقاط المتعارف عليها من ال input او انك تقوم بزيادة النقاط بcontent جديد دون الغاء القديم المتعارف عليه سابقا
 يجب ان تكون الاجابة في شكل JSON فقط يتكون من :    
     **تفاصيل المحتوى المطلوب:**
@@ -198,6 +206,8 @@ def edit_arabic_report():
     
     **الإجابة المطلوبة:**
     - أريد ملف JSON صالحًا فقط يبدأ بـ "{" وينتهي بـ "}".
+    - يجب أن تكون الإجابة بصيغة JSON صحيحة تمامًا، تبدأ بـ "{" وتنتهي بـ "}" دون أي نصوص إضافية خارج تنسيق JSON.
+
     - لا أريد أي شروحات أو نصوص إضافية في الإجابة.
     - قم بإرجاع المحتوى وفق الصيغة المطلوبة فقط.
 
@@ -205,6 +215,8 @@ def edit_arabic_report():
     - يحتوي على الحقول "headings" و"listItemsList" و"listItems" فقط مكتملة وصحيحة دون التزويد عليهم او الانقاص من احدهم.
     - متناسق وصالح للاستخدام بدون أي أخطاء في التنسيق.
     - يبدأ وينتهي بـ "{" و"}".
+
+    لا حظ انك لا تقوم بكتابة heading جديد ولكن انت تضيف نقطة جديدة ب title & content و كل ذلك مضاف على ال input
 
     ال headings  يجب ان تكون array of objects
     تاكد من كتابة ال HTML Tags بشكل صحيح
@@ -215,8 +227,8 @@ def edit_arabic_report():
 تأكد من تنسيق كافة العلامات بشكل صحيح.
 أكمل محتوى لاي من النقاط أو قم بإزالة الجزء الناقص.
 انت لا تقوم بتغيير اي شي الا ال content لاي من النقاط المتعارف عليها من ال input او انك تقوم بزيادة النقاط بcontent جديد دون الغاء القديم المتعارف عليه سابقا
-
-
+فانت لا تقوم باكتابة heading جديد بل نقطة جديدة
+    لا تنسى ال tables اذا احتاج الامر في ال content
     """
 })
 
@@ -233,15 +245,14 @@ def edit_arabic_report():
             cleaned_response = cleaned_response[len('```json'):].strip()
         if cleaned_response.endswith('```'):
             cleaned_response = cleaned_response[:-3].strip()
-
-        try:
-            updated_json = json.loads(cleaned_response)
-        except json.JSONDecodeError:
-            return jsonify({"error": "GPT response is not valid JSON."}), 500
-
-        return jsonify({"updated_json": updated_json}), 200
+        cleaned_response = cleaned_response.replace('`', '').strip()
+            
+        print("cleaned1: ", cleaned_response)
+        return cleaned_response, 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+        
 
 @app.route("/")
 def hello_world():
