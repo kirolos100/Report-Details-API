@@ -259,7 +259,7 @@ def edit_arabic_report():
      صيغة المدخل:
 سيتم إدخال JSON يحتوي على نصوص عربية (HTML)، كما في المثال التالي:
 
-  "headings": تحتوي على
+  "headings": تحتوي على  only one array 
       "version": 1,
       "title": "عنوان رئيسي للنقاط", 
       "listItemsList": 
@@ -274,6 +274,7 @@ def edit_arabic_report():
         
 صيغة الإخراج المتوقعة:
 لا تنسى ال tables اذا احتاج الامر على الاقل في نقطة واحدة في ال content
+  "headings" تحتوي على array واحد 
 ملف JSON صالح ومصحح يتبع نفس البنية، مع كتابة و تعديل المحتوى.
 قم بارجاع الناتج النهائي في شكل JSON Format و احذر ان ترجع ب String Format
 
