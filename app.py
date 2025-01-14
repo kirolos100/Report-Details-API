@@ -107,7 +107,7 @@ def process_with_llm(content, query):
 def process_with_llm(content, query):
     try:
         conversation_history = [
-            {"role": "system", "content": "You are an Arabic journalist tasked with enriching content for a report."},
+            {"role": "system", "content": "You are an Arabic journalist tasked with enriching content for a report in a JSON File."},
             {"role": "user", "content": f"Here is the content from the webpage:\n\n{content}\n\n{query}"}
         ]
         response = llm.chat.completions.create(
@@ -274,6 +274,8 @@ def edit_arabic_report():
         
 صيغة الإخراج المتوقعة:
 ملف JSON صالح ومصحح يتبع نفس البنية، مع كتابة و تعديل المحتوى.
+قم بارجاع الناتج النهائي في شكل JSON Format و احذر ان ترجع ب String Format
+
     """
 })
 
