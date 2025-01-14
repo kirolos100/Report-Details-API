@@ -201,7 +201,7 @@ def edit_arabic_report():
         enriched_prompt = arabic_prompt + "\n\n" + "يرجى تضمين إحصائيات وتحليلات مفصلة في كل نقطة، وشرح وافٍ و مفصل و كثيف بالمحتوى مع تقسيم المقال إلى أكثر من عنوان فرعي. استخدم البيانات التالية من المصادر لدعم المحتوى:\n\n".join(url_contents)
         conversation_history.append({
     "role": "system",
-    "content": "You are a professional journalist tasked with writing a detailed informative and valuable Arabic article in JSON format. The output should contain detailed statistics and analysis for every point."
+    "content": "You are a professional journalist tasked with editing and writing a detailed informative and valuable Arabic article in JSON format. The output should contain detailed statistics and analysis for every point."
 })
 
         conversation_history.append({
@@ -216,7 +216,7 @@ def edit_arabic_report():
 أنا اريد فقط في الاجابة ال JSON file بدون اي شروحات اضافية
 قم بإرجاع JSON صالح فقط بدون أي نصوص إضافية أو شروحات. يجب أن يبدأ الرد بـ "{" وينتهي بـ "}".
 لا تقم بتغيير ال Format لل {input_json}
-لا تقوم بنقص اي من ال{input_json} بل قم بالتزويد عليها
+لا تقوم بنقص اي من المعلومات و المحتوى من ال{input_json} بل قم بالتعديل و بالتزويد عليها
 لا حظ انك لا تقوم بكتابة heading جديد ولكن انت تضيف نقطة جديدة ب title & content و كل ذلك مضاف على ال input
 انت لا تقوم بتغيير اي شي الا ال content لاي من النقاط المتعارف عليها من ال input او انك تقوم بزيادة النقاط بcontent جديد دون الغاء القديم المتعارف عليه سابقا
 يجب ان تكون الاجابة في شكل JSON فقط يتكون من :    
@@ -273,6 +273,7 @@ def edit_arabic_report():
           
         
 صيغة الإخراج المتوقعة:
+لا تنسى ال tables اذا احتاج الامر على الاقل في نقطة واحدة في ال content
 ملف JSON صالح ومصحح يتبع نفس البنية، مع كتابة و تعديل المحتوى.
 قم بارجاع الناتج النهائي في شكل JSON Format و احذر ان ترجع ب String Format
 
